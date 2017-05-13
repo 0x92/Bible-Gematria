@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Data.DB, DBAccess, Uni,
-  MemDS;
+  MemDS, UniProvider, MySQLUniProvider;
 
 type
   TMainForm = class(TForm)
@@ -14,12 +14,15 @@ type
     qBibleCalc: TUniQuery;
     UniConnection: TUniConnection;
     UniQuery1: TUniQuery;
+    MySQLUniProvider: TMySQLUniProvider;
     procedure Button1Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
   private
     function CalculateValue(Str: String): Integer;
     function GetGematriaValuefromChar(Chr: Char): Integer;
+    function GetVerse(Line: String): String;
+    function CalculateVerse(Verse: String): Boolean;
     { Private-Deklarationen }
   public
     { Public-Deklarationen }
@@ -95,6 +98,16 @@ implementation
 
 {$R *.dfm}
 
+function PosEx(const Substr: string; const S: string; Offset: Integer): Integer;
+begin
+  if Offset <= 0 then Result := 0
+  else
+    Result := Pos(Substr, Copy(S, Offset, Length(S)));
+
+  if Result <> 0 then
+    Result := Result + Offset - 1;
+end;
+
 procedure TMainForm.Button1Click(Sender: TObject);
 begin
   Bible := TStringList.Create;
@@ -104,12 +117,28 @@ end;
 
 procedure TMainForm.Button2Click(Sender: TObject);
 var
-  i: Integer;
+  i, x: Integer;
 begin
-  for i := 0 to Bible.Count do
+  for i := 0 to Bible.Count -1 do
     begin
-    //Calc
+      CalculateVerse(Bible[i]);
     end;
+end;
+
+function TMainForm.CalculateVerse(Verse: String): Boolean;
+begin
+  UniConnection.Open;
+  ShowMessage(Verse);
+end;
+
+//Genesis 1:1	In the beginning God created the heaven and the earth.
+function TMainForm.GetVerse(Line: String): String;
+var
+  a, b: Integer;
+begin
+  a := Pos(':', Line);
+  b := PosEx(' ', Line, a);
+  Result := Copy(Line, 1, b);
 end;
 
 procedure TMainForm.FormClose(Sender: TObject; var Action: TCloseAction);

@@ -52,4 +52,8 @@ object MainForm: TMainForm
     Left = 240
     Top = 184
   end
+  object MySQLUniProvider: TMySQLUniProvider
+    Left = 344
+    Top = 264
+  end
 end
